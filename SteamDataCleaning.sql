@@ -61,6 +61,17 @@ UPDATE dbo.Dataset
 SET Name = 'I am the dirt-for art'
 WHERE AppID = 1116910;
 
+--Checking Name column for duplicates
+
+SELECT Name
+	,GameCount = COUNT(*)
+FROM dbo.Dataset
+GROUP BY Name
+HAVING COUNT(*) > 1
+ORDER BY GameCount DESC
+
+--Looking at the duplicates, they are either different games with the same name, or different releases of the same game
+
 --Checking other columns for nulls
 
 SELECT *
