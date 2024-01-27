@@ -2,148 +2,342 @@
 
 SELECT * FROM Games;
 
---Number of game releases per year
+--Positive User Review % = (Positive + Negative / Total User Votes)
+
+--Dataset overall positive user review % excluding games with no user review
+
+SELECT PercentPositive = SUM(Positive) * 1.0 / (SUM(Positive) + SUM(Negative)) * 100
+FROM Games
+WHERE Positive + Negative > 0
+
+--Top 10 games with highest positive user review % and over 10000 votes
+
+SELECT TOP (10) A.Name
+	,A.Positive
+	,A.Negative
+	,PercentPositive = CAST(A.Positive * 1.0 / (A.Positive + A.Negative) * 100 AS DECIMAL(5, 2))
+	,A.Metacritic_score
+	,A.Price
+	,Genres = REPLACE(STUFF((
+			SELECT ', ' + C.Name
+			FROM Game_Genres B
+			JOIN Genres C
+				ON B.GenreID = C.GenreID
+			WHERE A.AppID = B.AppID
+			FOR XML PATH('')
+			), 1, 1, ''), '&amp;', '&')
+	,Developers =  REPLACE(STUFF((
+			SELECT ', ' + E.Name
+			FROM Game_Developers D
+			JOIN Developers E
+				ON D.DeveloperID = E.DeveloperID
+			WHERE A.AppID = D.AppID
+			FOR XML PATH('')
+			), 1, 1, ''), '&amp;', '&')
+	,EstimatedOwners = F.Range
+FROM Games A
+JOIN EstimatedOwners F
+ON A.EstimatedOwnersID = F.EstimatedOwnersID
+WHERE A.Positive + A.Negative > 10000
+ORDER BY PercentPositive DESC;
+
+--Note: Checked the duplicate Portal 2 and they are 2 AppIDs listed separately in the Steam store but direct to the same game.
+--Bottom 10 games with over 10000 votes
+
+SELECT TOP (10) A.Name
+	,A.Positive
+	,A.Negative
+	,PercentPositive = CAST(A.Positive * 1.0 / (A.Positive + A.Negative) * 100 AS DECIMAL(5, 2))
+	,A.Metacritic_score
+	,A.Price
+	,Genres = REPLACE(STUFF((
+			SELECT ', ' + C.Name
+			FROM Game_Genres B
+			JOIN Genres C
+				ON B.GenreID = C.GenreID
+			WHERE A.AppID = B.AppID
+			FOR XML PATH('')
+			), 1, 1, ''), '&amp;', '&')
+	,Developers =  REPLACE(STUFF((
+			SELECT ', ' + E.Name
+			FROM Game_Developers D
+			JOIN Developers E
+				ON D.DeveloperID = E.DeveloperID
+			WHERE A.AppID = D.AppID
+			FOR XML PATH('')
+			), 1, 1, ''), '&amp;', '&')
+	,EstimatedOwners = F.Range
+FROM Games A
+JOIN EstimatedOwners F
+ON A.EstimatedOwnersID = F.EstimatedOwnersID
+WHERE A.Positive + A.Negative > 10000
+ORDER BY PercentPositive;
+
+--Positive user review % per release year
 
 SELECT ReleaseYear = YEAR(Release_date)
-	,GameCount = COUNT(*)
+	,PercentPositive = CAST(SUM(Positive) * 1.0 / (SUM(Positive) + SUM(Negative)) * 100 AS DECIMAL(5, 2))
 FROM Games
-GROUP BY YEAR(Release_DATE)
+WHERE Positive + Negative > 0
+GROUP BY YEAR(Release_date)
 ORDER BY 1;
 
---Distribution of estimated owners
+--Looking at contributors to low % for year 2023
 
-SELECT B.Range
-	,RangeCount = COUNT(*)
+SELECT TOP (10) A.Name
+	,A.Positive
+	,A.Negative
+	,PercentPositive = CAST(A.Positive * 1.0 / (A.Positive + A.Negative) * 100 AS DECIMAL(5, 2))
+	,A.Metacritic_score
+	,A.Price
+	,Genres = REPLACE(STUFF((
+			SELECT ', ' + C.Name
+			FROM Game_Genres B
+			JOIN Genres C
+				ON B.GenreID = C.GenreID
+			WHERE A.AppID = B.AppID
+			FOR XML PATH('')
+			), 1, 1, ''), '&amp;', '&')
+	,Developers =  REPLACE(STUFF((
+			SELECT ', ' + E.Name
+			FROM Game_Developers D
+			JOIN Developers E
+				ON D.DeveloperID = E.DeveloperID
+			WHERE A.AppID = D.AppID
+			FOR XML PATH('')
+			), 1, 1, ''), '&amp;', '&')
+	,EstimatedOwners = F.Range
+FROM Games A
+JOIN EstimatedOwners F
+ON A.EstimatedOwnersID = F.EstimatedOwnersID
+WHERE A.Positive + A.Negative > 10000
+AND YEAR(Release_date) = 2023
+ORDER BY PercentPositive;
+
+--Positive user review % per estimated owners
+
+SELECT EstimatedOwners = B.Range
+	,PercentPositive = CAST(SUM(A.Positive) * 1.0 / (SUM(A.Positive) + SUM(A.Negative)) * 100 AS DECIMAL(5, 2))
 FROM Games A
 JOIN EstimatedOwners B
-	ON A.EstimatedOwnersID = B.EstimatedOwnersID
+ON A.EstimatedOwnersID = B.EstimatedOwnersID
+WHERE A.Positive + A.Negative > 0
 GROUP BY B.Range
 ORDER BY 2 DESC;
 
---Top 20 games with peak concurrent users during 2nd week of January 2024
+--Positive % per concurrent users
 
-SELECT TOP (20) Name
-	,Peak_CCU
-FROM Games
-ORDER BY Peak_CCU DESC;
+SELECT
+  CCURange = FLOOR(Peak_CCU / 10000) * 10000,
+  GameCount = COUNT(*),
+  PercentPositive = CAST(SUM(Positive) * 1.0 / (SUM(Positive) + SUM(Negative)) * 100 AS DECIMAL(5, 2))  
+FROM
+  Games
+WHERE Positive + Negative > 0
+GROUP BY
+  FLOOR(Peak_CCU / 10000) * 10000
+ORDER BY
+  CCURange DESC;
 
---Distribution of prices
+--Looking at smaller range for games with less than 10k CCU
 
-SELECT Price
-	,GameCount = COUNT(*)
-FROM Games
-GROUP BY Price
-ORDER BY 2 DESC;
+SELECT
+  CCURange = FLOOR(Peak_CCU / 500) * 500,
+  GameCount = COUNT(*),
+  PercentPositive = CAST(SUM(Positive) * 1.0 / (SUM(Positive) + SUM(Negative)) * 100 AS DECIMAL(5, 2))  
+FROM
+  Games
+WHERE Positive + Negative > 0
+AND FLOOR(Peak_CCU / 500) * 500 < 10000
+GROUP BY
+  FLOOR(Peak_CCU / 500) * 500
+ORDER BY
+  CCURange DESC;
 
---Distribution of games across platforms
+--Positive % per price range
+
+SELECT
+  PriceRange = FLOOR(Price / 10) * 10,
+  GameCount = COUNT(*),
+  PercentPositive = CAST(SUM(Positive) * 1.0 / (SUM(Positive) + SUM(Negative)) * 100 AS DECIMAL(5, 2))  
+FROM
+  Games
+WHERE Positive + Negative > 0
+GROUP BY
+  FLOOR(Price / 10) * 10
+ORDER BY
+  PriceRange;
+
+--Positive user % per platform
 
 SELECT Windows
 	,Mac
 	,Linux
 	,GameCount = COUNT(*)
+	,PercentPositive = CAST(SUM(Positive) * 1.0 / (SUM(Positive) + SUM(Negative)) * 100 AS DECIMAL(5, 2))
 FROM Games
+WHERE Positive + Negative > 0
 GROUP BY Windows
 	,Mac
 	,Linux
 ORDER BY GameCount DESC;
 
---Top 20 games with highest metacritic score
+--Looking at Mac and Linux Games
 
-SELECT TOP (20) Name
-	,AppID
-	,Metacritic_score
-FROM Games
-ORDER BY Metacritic_score DESC;
+SELECT TOP (10) A.Name
+	,A.Positive
+	,A.Negative
+	,PercentPositive = CAST(A.Positive * 1.0 / (A.Positive + A.Negative) * 100 AS DECIMAL(5, 2))
+	,A.Metacritic_score
+	,A.Price
+	,Genres = REPLACE(STUFF((
+			SELECT ', ' + C.Name
+			FROM Game_Genres B
+			JOIN Genres C
+				ON B.GenreID = C.GenreID
+			WHERE A.AppID = B.AppID
+			FOR XML PATH('')
+			), 1, 1, ''), '&amp;', '&')
+	,Developers =  REPLACE(STUFF((
+			SELECT ', ' + E.Name
+			FROM Game_Developers D
+			JOIN Developers E
+				ON D.DeveloperID = E.DeveloperID
+			WHERE A.AppID = D.AppID
+			FOR XML PATH('')
+			), 1, 1, ''), '&amp;', '&')
+	,EstimatedOwners = F.Range
+FROM Games A
+JOIN EstimatedOwners F
+ON A.EstimatedOwnersID = F.EstimatedOwnersID
+WHERE A.Positive + A.Negative > 0
+AND (
+(A.Windows = 0 AND A.Mac = 1 AND A.Linux = 0)
+OR
+(A.Windows = 0 AND A.Mac = 0 AND A.Linux = 1))
+ORDER BY PercentPositive;
 
---Note: Checked the duplicate Portal 2 and they are 2 AppIDs listed separately in the Steam store but direct to the same game.
+--Positive user % per genre
 
---Top 20 games with highest positive score % (positive + negative / total user votes) and over 10000 votes
-
-SELECT TOP (20) Name
-	,Positive
-	,Negative
-	,PercentPositive = CASE 
-		WHEN Positive + Negative = 0
-			THEN 0
-		ELSE CAST(Positive * 1.0 / (Positive + Negative) * 100 AS DECIMAL(10, 2))
-		END
-FROM Games
-WHERE Positive + Negative > 10000
-ORDER BY PercentPositive DESC;
-
---Top 10 game with highest user recommendations
-
-SELECT TOP (10) Name
-	,AppID
-	,Recommendations
-FROM Games
-ORDER BY Recommendations DESC;
-
---Top 10 games with highest all time average playtime
-
-SELECT TOP (10) Name
-	,Average_playtime_forever
-FROM Games
-ORDER BY 2 DESC;
-
---Top 10 games with highest all time median playtime
-
-SELECT TOP (10) Name
-	,Median_playtime_forever
-FROM Games
-ORDER BY 2 DESC;
-
---Average metacritic score per genre
-
-SELECT C.Name
-	,MetacriticAverage = AVG(CAST(A.Metacritic_score AS FLOAT))
+SELECT Genre = C.Name
+	,GameCount = COUNT(*)
+	,PercentPositive = CAST(SUM(A.Positive) * 1.0 / (SUM(A.Positive) + SUM(A.Negative)) * 100 AS DECIMAL(5, 2))
 FROM Games A
 JOIN Game_Genres B
 	ON A.AppID = B.AppID
 JOIN Genres C
 	ON B.GenreID = C.GenreID
-WHERE A.Metacritic_score > 0
+WHERE A.Positive + A.Negative > 0
 	AND C.Name <> 'None'
 GROUP BY (C.Name)
-ORDER BY 2 DESC;
+ORDER BY 3 DESC;
 
---Average metacritic score per user-created tags
+--Positive user % score per category
 
-SELECT C.Name
-	,MetacriticAverage = AVG(CAST(A.Metacritic_score AS FLOAT))
+SELECT Category = C.Name
+	,GameCount = COUNT(*)
+	,PercentPositive = CAST(SUM(A.Positive) * 1.0 / (SUM(A.Positive) + SUM(A.Negative)) * 100 AS DECIMAL(5, 2))
+FROM Games A
+JOIN Game_Categories B
+	ON A.AppID = B.AppID
+JOIN Categories C
+	ON B.CategoryID = C.CategoryID
+WHERE A.Positive + A.Negative > 0
+	AND C.Name <> 'None'
+GROUP BY (C.Name)
+ORDER BY 3 DESC;
+
+--Positive user % per user-created tags
+
+SELECT Tag = C.Name
+	,GameCount = COUNT(*)
+	,PercentPositive = CAST(SUM(A.Positive) * 1.0 / (SUM(A.Positive) + SUM(A.Negative)) * 100 AS DECIMAL(5, 2))
 FROM Games A
 JOIN Game_Tags B
 	ON A.AppID = B.AppID
 JOIN Tags C
 	ON B.TagID = C.TagID
-WHERE A.Metacritic_score > 0
+WHERE A.Positive + A.Negative > 0
 	AND C.Name <> 'None'
 GROUP BY C.Name
-ORDER BY 2 DESC;
+ORDER BY 3 DESC;
 
---When this data was updated there was only 1 game with a Batman tag and that was Batman Arkham Asylum.
+--Top developers with over 10000 reviews
 
---Top developers in terms of total concurrent users
-
-SELECT TOP (20) C.Name
-	,TotalPeak_CCU = SUM(A.Peak_CCU)
+SELECT TOP (10) Developer = C.Name
+	,GameCount = COUNT(*)
+	,PercentPositive = CAST(SUM(A.Positive) * 1.0 / (SUM(A.Positive) + SUM(A.Negative)) * 100 AS DECIMAL(5, 2))
 FROM Games A
 JOIN Game_Developers B
 	ON A.AppID = B.AppID
 JOIN Developers C
 	ON B.DeveloperID = C.DeveloperID
+WHERE A.Positive + A.Negative > 10000
+	AND C.Name <> 'None'
 GROUP BY C.Name
-ORDER BY 2 DESC;
+ORDER BY 3 DESC;
 
---Top publishers in terms of total recommendations
+--Checking devs with at least 5 games
 
-SELECT TOP (20) C.Name
-	,TotalRecommendations = SUM(A.Recommendations)
+SELECT TOP (10) Developer = C.Name
+	,GameCount = COUNT(*)
+	,PercentPositive = CAST(SUM(A.Positive) * 1.0 / (SUM(A.Positive) + SUM(A.Negative)) * 100 AS DECIMAL(5, 2))
+FROM Games A
+JOIN Game_Developers B
+	ON A.AppID = B.AppID
+JOIN Developers C
+	ON B.DeveloperID = C.DeveloperID
+WHERE A.Positive + A.Negative > 10000
+	AND C.Name <> 'None'
+GROUP BY C.Name
+HAVING COUNT(*) >= 5
+ORDER BY 3 DESC;
+
+--Bottom developers with at least 5 games
+
+SELECT TOP (10) Developer = C.Name
+	,GameCount = COUNT(*)
+	,PercentPositive = CAST(SUM(A.Positive) * 1.0 / (SUM(A.Positive) + SUM(A.Negative)) * 100 AS DECIMAL(5, 2))
+FROM Games A
+JOIN Game_Developers B
+	ON A.AppID = B.AppID
+JOIN Developers C
+	ON B.DeveloperID = C.DeveloperID
+WHERE A.Positive + A.Negative > 10000
+	AND C.Name <> 'None'
+GROUP BY C.Name
+HAVING COUNT(*) >= 5
+ORDER BY 3;
+
+--Top publishers with at least 5 games
+
+SELECT TOP (10) Publisher = C.Name
+	,GameCount = COUNT(*)
+	,PercentPositive = CAST(SUM(A.Positive) * 1.0 / (SUM(A.Positive) + SUM(A.Negative)) * 100 AS DECIMAL(5, 2))
 FROM Games A
 JOIN Game_Publishers B
 	ON A.AppID = B.AppID
 JOIN Publishers C
-	ON B.PublisherID = C.PublisherID
+	ON B.PublisherID= C.PublisherID
+WHERE A.Positive + A.Negative > 10000
+	AND C.Name <> 'None'
 GROUP BY C.Name
-ORDER BY 2 DESC;
+HAVING COUNT(*) >= 5
+ORDER BY 3 DESC;
+
+--Bottom publishers
+
+SELECT TOP (10) Publisher = C.Name
+	,GameCount = COUNT(*)
+	,PercentPositive = CAST(SUM(A.Positive) * 1.0 / (SUM(A.Positive) + SUM(A.Negative)) * 100 AS DECIMAL(5, 2))
+FROM Games A
+JOIN Game_Publishers B
+	ON A.AppID = B.AppID
+JOIN Publishers C
+	ON B.PublisherID= C.PublisherID
+WHERE A.Positive + A.Negative > 10000
+	AND C.Name <> 'None'
+GROUP BY C.Name
+HAVING COUNT(*) >= 5
+ORDER BY 3;
 
