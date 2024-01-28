@@ -10,6 +10,7 @@
 ## Dataset Information
 
 **Name:** Steam Games Dataset
+
 **Number of Records:** 85099
 
 The dataset was imported into the system using SQL Server Management Studio and analyzed using SQL Server.
