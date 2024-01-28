@@ -95,4 +95,4 @@ The dataset was imported into the system using SQL Server Management Studio and 
 
 ## Exploratory Data Analysis
 
-**SQL Queries:** [Data Normalization](/SteamDataEDA.sql)
+**SQL Queries:** [EDA](/SteamDataEDA.sql)
