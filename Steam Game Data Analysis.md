@@ -76,6 +76,7 @@ The dataset was imported into the system using SQL Server Management Studio and 
 * Manually updated Name values for 2 entries.
 * Renamed Estimated_owner values for better readability.
 * Replaced NULL values with "None" for multiple columns.
+
 ## Data Normalization
 
 **SQL Queries:** [Data Normalization](/SteamDataNormalization.sql)
@@ -88,6 +89,10 @@ The dataset was imported into the system using SQL Server Management Studio and 
 	* Tags
 * Created separate table for Estimated_owners.
 
-Database Diagram
+**Database Diagram**
 ![dbd](/images/dbdiagram.png)
 (Created using [Quick DBD](https://app.quickdatabasediagrams.com/))
+
+## Exploratory Data Analysis
+
+**SQL Queries:** [Data Normalization](/SteamDataEDA.sql)
