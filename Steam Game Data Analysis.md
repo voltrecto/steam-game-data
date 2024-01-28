@@ -80,10 +80,14 @@ The dataset was imported into the system using SQL Server Management Studio and 
 
 **SQL Queries:** [Data Normalization](/SteamDataNormalization.sql)
 * Created new table Games.
-* Created separate tables for the following columns because these columns had multiple comma-separated values in the original dataset:
+* Created separate tables for columns cotaining multiple comma-separated values in the original dataset:
 	* Developers
 	* Publishers
 	* Categories
 	* Genres
 	* Tags
 * Created separate table for Estimated_owners.
+
+Database Diagram
+![dbd](/images/dbdiagram.png)
+(Created using [Quick DBD](https://app.quickdatabasediagrams.com/))
