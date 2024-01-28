@@ -58,32 +58,32 @@ The dataset was imported into the system using SQL Server Management Studio and 
 
 ## Data Cleaning
 
-**SQL Queries:** [Data Cleaning Queries](https://github.com/voltrecto/steam-game-data/blob/main/SteamDataCleaning.sql)
+**SQL Queries:** [Data Cleaning Queries](/SteamDataCleaning.sql)
 * Removed columns that do not have data relevant to our analysis or those that are mostly NULL:
-	1. Support_languages
-	2. Full_audio_languages
-	3. Reviews
-	4. Header_image
-	5. Website
-	6. Support_url
-	7. Support_email
-	8. Metacritic_url
-	9. Score_rank
-	10. Notes
-	11. Screenshots
-	12. Movies
+	* Support_languages
+	* Full_audio_languages
+	* Reviews
+	* Header_image
+	* Website
+	* Support_url
+	* Support_email
+	* Metacritic_url
+	* Score_rank
+	* Notes
+	* Screenshots
+	* Movies
 * Checked remaining columns for NULL values.
 * Manually updated Name values for 2 entries.
 * Renamed Estimated_owner values for better readability.
 * Replaced NULL values with "None" for multiple columns.
 ## Data Normalization
 
-**SQL Queries:** [Data Normalization](https://github.com/voltrecto/steam-game-data/blob/main/SteamDataNormalization.sql)
+**SQL Queries:** [Data Normalization](/SteamDataNormalization.sql)
 * Created new table Games.
 * Created separate tables for the following columns because these columns had multiple comma-separated values in the original dataset:
-	1. Developers
-	2. Publishers
-	3. Categories
-	4. Genres
-	5. Tags
+	* Developers
+	* Publishers
+	* Categories
+	* Genres
+	* Tags
 * Created separate table for Estimated_owners.
