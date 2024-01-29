@@ -10,9 +10,11 @@ The dataset was created by Martin Bustos using the Steam Web API and published o
 
 **Dataset Link:** [Steam Games Dataset](https://www.kaggle.com/datasets/fronkongames/steam-games-dataset)
 
+
 **Data Cleaning and Normalization**
 
 The dataset underwent thorough cleaning and normalization using SQL queries, including the removal of irrelevant columns, handling NULL values, and creating separate tables for better organization.
+
 
 **Exploratory Data Analysis (EDA)**
 
