@@ -185,6 +185,9 @@ ORDER BY GameCount DESC;
 --Looking at Mac and Linux Games
 
 SELECT TOP (10) A.Name
+	,A.Windows
+	,A.Mac
+	,A.Linux
 	,A.Positive
 	,A.Negative
 	,PercentPositive = CAST(A.Positive * 1.0 / (A.Positive + A.Negative) * 100 AS DECIMAL(5, 2))
