@@ -99,6 +99,7 @@ The dataset was imported into the system using SQL Server Management Studio and 
 
 The focus of our queries was on positive user review % (Positive + Negative / Total User Votes). We also filtered out low player vote counts for certain queries to get insights on performance of popular games.
 
+
 Overall Positive User Review % for Dataset
 ```
 SELECT PercentPositive = SUM(Positive) * 1.0 / (SUM(Positive) + SUM(Negative)) * 100
@@ -106,6 +107,7 @@ FROM Games
 WHERE Positive + Negative > 0
 ```
 ![result](/images/EDAdataset.png)
+
 
 Top 10 Games (Over 10000 Reviews)
 ```
@@ -140,6 +142,7 @@ ORDER BY PercentPositive DESC;
 ```
 ![result](/images/EDAtop10.png)
 
+
 Bottom 10 Games (Over 10000 Reviews)
 ```
 SELECT TOP (10) A.Name
@@ -173,6 +176,7 @@ ORDER BY PercentPositive;
 ```
 ![result](/images/EDAbottom10.png)
 
+
 Positive Review % per Release Year
 ```
 SELECT ReleaseYear = YEAR(Release_date)
@@ -183,6 +187,7 @@ GROUP BY YEAR(Release_date)
 ORDER BY 1;
 ```
 ![result](/images/EDAreleaseyear.png)
+
 
 Bottom Games for 2023
 ```
@@ -218,6 +223,7 @@ ORDER BY PercentPositive;
 ```
 ![result](/images/EDAbottom2023.png)
 
+
 Positive Review % per Estimated Owners
 ```
 SELECT EstimatedOwners = B.Range
@@ -230,6 +236,7 @@ GROUP BY B.Range
 ORDER BY 2 DESC;
 ```
 ![result](/images/EDAowners.png)
+
 
 Positive Review % per Range of Concurrent Users
 ```
@@ -246,6 +253,7 @@ ORDER BY
   CCURange DESC;
 ```
 ![result](/images/EDAccu1.png)
+
 
 Games with Less than 10k CCU
 ```
@@ -264,6 +272,7 @@ ORDER BY
 ```
 ![result](/images/EDAccu2.png)
 
+
 Positive Review % per Price Range
 ```
 SELECT
@@ -280,6 +289,7 @@ ORDER BY
 ```
 ![result](/images/EDApricerange.png)
 
+
 Positive Review % per Platform
 ```
 SELECT Windows
@@ -295,6 +305,7 @@ GROUP BY Windows
 ORDER BY GameCount DESC;
 ```
 ![result](/images/EDAplatform1.png)
+
 
 Getting details of the Exclusive Mac and Linux Games
 ```
@@ -336,6 +347,7 @@ ORDER BY PercentPositive;
 ```
 ![result](/images/EDAplatform2.png)
 
+
 Positive Review % per Genre
 ```
 SELECT Genre = C.Name
@@ -352,6 +364,7 @@ GROUP BY (C.Name)
 ORDER BY 3 DESC;
 ```
 ![result](/images/EDAgenre.png)
+
 
 Positive Review % per Category
 ```
@@ -370,6 +383,7 @@ ORDER BY 3 DESC;
 ```
 ![result](/images/EDAcategory.png)
 
+
 Positive Review % per User-Submitted Tags
 ```
 SELECT Tag = C.Name
@@ -386,6 +400,7 @@ GROUP BY C.Name
 ORDER BY 3 DESC;
 ```
 ![result](/images/EDAtag.png)
+
 
 Top Developers with over 10000 Reviews
 ```
@@ -404,6 +419,7 @@ ORDER BY 3 DESC;
 ```
 ![result](/images/EDAtopdevelopers1.png)
 
+
 Top Developers with over 10000 Reviews and At Least 5 Games
 ```
 SELECT TOP (10) Developer = C.Name
@@ -420,7 +436,8 @@ GROUP BY C.Name
 HAVING COUNT(*) >= 5
 ORDER BY 3 DESC;
 ```
-![result](/images/topdevelopers2.png)
+![result](/images/EDAtopdevelopers2.png)
+
 
 Bottom Developers with over 10000 Reviews and At Least 5 Games
 ```
@@ -440,6 +457,7 @@ ORDER BY 3;
 ```
 ![result](/images/EDAbottomdevelopers.png)
 
+
 Top Publishers with over 10000 Reviews and At Least 5 Games
 ```
 SELECT TOP (10) Publisher = C.Name
@@ -457,6 +475,7 @@ HAVING COUNT(*) >= 5
 ORDER BY 3 DESC;
 ```
 ![result](/images/EDAtoppublishers.png)
+
 
 Bottom Publishers with over 10000 Reviews and At Least 5 Games
 ```
